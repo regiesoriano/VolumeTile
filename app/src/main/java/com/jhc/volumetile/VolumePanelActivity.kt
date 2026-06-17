@@ -1,26 +1,24 @@
 package com.jhc.volumetile
 
 import android.app.Activity
+import android.content.Intent
 import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
 
 class VolumePanelActivity : Activity() {
-    private var alreadyShown = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setDimAmount(0f)
-    }
 
-    override fun onResume() {
-        super.onResume()
-
-        if (alreadyShown) {
-            return
-        }
-        alreadyShown = true
-
-        window.decorView.postDelayed({
+        try {
+            val serviceIntent = Intent(this, VolumePanelForegroundService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        } catch (_: Throwable) {
+            // If the foreground service cannot be started, make one last no-window attempt.
             try {
                 getSystemService(AudioManager::class.java).adjustStreamVolume(
                     AudioManager.STREAM_MUSIC,
@@ -28,12 +26,11 @@ class VolumePanelActivity : Activity() {
                     AudioManager.FLAG_SHOW_UI
                 )
             } catch (_: Throwable) {
-                // Keep the tile from crashing if a test build enables audio hardening exceptions.
-            } finally {
-                window.decorView.postDelayed({
-                    finishAndRemoveTask()
-                }, 500)
+                // Keep the activity from crashing if audio hardening is set to throw.
             }
-        }, 120)
+        } finally {
+            // Theme.NoDisplay activities must finish immediately. This prevents an app window flash.
+            finish()
+        }
     }
 }

@@ -1,34 +1,19 @@
-# Android 17 VolumeTile patch
+# VolumeTile Android 17 no-window foreground-service patch
 
-This fork changes the Volume QS tile so that it no longer calls `AudioManager.adjustStreamVolume()` directly from the background `TileService`.
+This variant avoids the visible transparent Activity window.
 
-Android 17 blocks background volume APIs unless the app has a visible activity or a valid foreground service. The original tile called:
+Flow:
 
-```kotlin
-adjustStreamVolume(STREAM_MUSIC, ADJUST_SAME, FLAG_SHOW_UI)
-```
+1. QS tile click launches `VolumePanelActivity` with `startActivityAndCollapse()` so the notification shade collapses.
+2. `VolumePanelActivity` uses `Theme.NoDisplay`, starts `VolumePanelForegroundService`, and immediately finishes. It should not draw an app window.
+3. `VolumePanelForegroundService` briefly promotes itself to a `mediaPlayback` foreground service.
+4. The service calls `AudioManager.adjustStreamVolume(STREAM_MUSIC, ADJUST_SAME, FLAG_SHOW_UI)`.
+5. The service removes its notification and stops itself.
 
-directly inside `VolumeTileService.onClick()`, which can be silently ignored on Android 17.
+Reason:
 
-The patched flow is:
+Android 17 blocks background volume APIs unless the app has a visible Activity or a non-short foreground service. The previous patch used a visible Activity. This patch uses a no-display Activity only as a user-trigger bridge, then performs the volume UI call from a foreground service.
 
-```text
-QS tile click -> transparent VolumePanelActivity -> ADJUST_SAME + FLAG_SHOW_UI -> activity closes
-```
+Tradeoff:
 
-This keeps the compact Android volume overlay behavior without changing the media volume.
-
-## Build with GitHub Actions
-
-1. Push this source to your fork.
-2. Open the repository's Actions tab.
-3. Run the `Build APK` workflow.
-4. Download the `VolumeTile-Android17-APKs` artifact.
-5. Install either the debug APK or release APK.
-
-If Android reports a signature mismatch, uninstall the old VolumeTile first:
-
-```sh
-adb uninstall com.jhc.volumetile
-adb install app-release.apk
-```
+Android may briefly show a foreground-service chip/notification, but the app Activity window should no longer flash.
