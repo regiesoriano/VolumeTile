@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace 'com.jhc.volumetile'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.jhc.volumetile"
         minSdk 26
         targetSdk 33
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2-android17"
     }
 
     buildTypes {
