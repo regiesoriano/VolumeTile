@@ -85,7 +85,6 @@ class VolumePanelForegroundService : Service() {
             .setLocalOnly(true)
             .setCategory(Notification.CATEGORY_SERVICE)
             .setPriority(Notification.PRIORITY_MIN)
-            .setSilent(true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Ask SystemUI not to show the short-lived foreground-service notification immediately.
