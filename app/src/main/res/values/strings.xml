@@ -1,8 +1,4 @@
 <resources>
-    <string name="app_name">VolumeTile</string>
-    <string name="volume_tile_name">Volume</string>
-    <string name="power_tile_name">Lock screen</string>
-    <string name="volume_service_channel_name">Volume panel</string>
-    <string name="volume_service_channel_description">Temporary foreground service used to show the volume panel.</string>
-    <string name="volume_service_text">Opening volume panel…</string>
+    <string name="app_name">Volume Tile</string>
+    <string name="tile_name">Volume</string>
 </resources>

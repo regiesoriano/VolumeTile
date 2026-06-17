@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace 'com.jhc.volumetile'
-    compileSdk 34
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.jhc.volumetile"
         minSdk 26
         targetSdk 33
-        versionCode 4
-        versionName "1.3-android17-fgs"
+        versionCode 2
+        versionName "1.1-android17"
     }
 
     buildTypes {
@@ -30,9 +30,4 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-}
-
-
-dependencies {
-    implementation "com.github.topjohnwu.libsu:core:5.2.2"
 }
