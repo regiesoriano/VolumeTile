@@ -14,27 +14,33 @@ import android.os.Looper
 
 class VolumePanelForegroundService : Service() {
     private val handler = Handler(Looper.getMainLooper())
+    private var foregroundStarted = false
+
+    private val stopRunnable = Runnable {
+        stopForegroundCompat()
+        foregroundStarted = false
+        stopSelf()
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        try {
-            startAsForegroundService()
+        handler.removeCallbacks(stopRunnable)
 
-            handler.postDelayed({
-                try {
-                    showVolumePanel()
-                } catch (_: Throwable) {
-                    // Keep the service from crashing if audio hardening is set to throw.
-                } finally {
-                    handler.postDelayed({
-                        stopForegroundCompat()
-                        stopSelf(startId)
-                    }, STOP_DELAY_MS)
-                }
-            }, SHOW_DELAY_MS)
+        try {
+            if (!foregroundStarted) {
+                startAsForegroundService()
+                foregroundStarted = true
+            }
+
+            // Call immediately after startForeground(). The old build added a 60 ms delay here.
+            showVolumePanel()
         } catch (_: Throwable) {
-            stopSelf(startId)
+            // Keep the service from crashing if audio hardening is set to throw.
+        } finally {
+            // Keep the foreground service warm briefly. Repeated taps in this window avoid
+            // the cold start/startForeground path and only re-send the volume-panel request.
+            handler.postDelayed(stopRunnable, KEEP_ALIVE_MS)
         }
 
         return START_NOT_STICKY
@@ -130,7 +136,6 @@ class VolumePanelForegroundService : Service() {
     private companion object {
         private const val CHANNEL_ID = "volume_panel_service"
         private const val NOTIFICATION_ID = 1001
-        private const val SHOW_DELAY_MS = 60L
-        private const val STOP_DELAY_MS = 300L
+        private const val KEEP_ALIVE_MS = 2_500L
     }
 }
