@@ -1,7 +1,11 @@
 <resources>
-    <style name="Theme.VolumeTile.NoDisplay" parent="@android:style/Theme.NoDisplay">
-        <item name="android:windowDisablePreview">true</item>
+    <style name="Theme.VolumeTile.InvisibleDialog" parent="@android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowDisablePreview">true</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 </resources>
